@@ -13,7 +13,7 @@ a large-scale, cross-study meta-analysis of cellular senescence transcriptomics.
 
 ## Citation
 If you use this pipeline or derived results, please cite:
-> Mohd Shahzaib (2025). *Senescence Transcriptome Meta-Analysis Pipeline (REML + SVA)*.  
+> Mohd Shahzaib (2025). *Senescence Transcriptome Meta-Analysis Pipeline *.  
 > GitHub: [https://github.com/Mohd-Shahzaib/Senescence-Transcriptome-MetaAnalysis./](https://github.com/Mohd-Shahzaib/Senescence-Transcriptome-MetaAnalysis./)
 
 ## License
