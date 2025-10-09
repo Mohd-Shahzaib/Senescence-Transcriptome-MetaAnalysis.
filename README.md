@@ -1,4 +1,4 @@
-# Senescence-Transcriptome-MetaAnalysis.
+# Senescence Transcriptomic Meta-Analysis.
 R pipeline for meta-analysis  transcriptomic integration of cellular senescence datasets.
 # Senescence Transcriptome Meta-Analysis
 
