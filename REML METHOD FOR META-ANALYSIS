@@ -8,7 +8,7 @@
 # This pipeline integrates transcriptomic data from multiple senescence models
 # using two complementary strategies:
 #   (1) REML-based meta-analysis (Approach 1)
-#   (2) SVA-corrected DESeq2 overlap (Approach 2)
+#   (2) SVA-corrected DESeq2 overlap (Approach 2) , check another repo.  for Deseq2 + sva method.
 #
 # Both workflows have been unified in this reproducible R pipeline.
 # The code is identical in logic and parameterization to that used in the PhD thesis.
