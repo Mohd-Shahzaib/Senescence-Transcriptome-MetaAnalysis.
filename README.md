@@ -10,25 +10,30 @@ a large-scale, cross-study meta-analysis of cellular senescence transcriptomics.
 - **session_info.txt** — environment details for reproducibility
   
 ## 📁 Repository Structure
+
+The following tree shows the internal organization of the repository, including both REML and DESeq2 + SVA analysis pipelines:
+
+```text
 Senescence-Transcriptome-MetaAnalysis/
 │
 ├── 📁 Data_of_DEG/
-│ ├── 📁 REML_pipeline/ # Random-Effects Meta-Analysis (REML model)
-│ │ ├── R Code REML METHOD FOR META-ANALYSIS
-│ │ ├── REML PIPELINE environment session info for R
-│ │ ├── README_REML_Info.md
-│ │ └── README.md
-│ │
-│ └── 📁 DESeq2_SVA_pipeline/ # DESeq2 + SVA differential expression analysis
-│ ├── R Code RNA-seq Batch Correction (DESeq2 + VST + SVA)
-│ ├── DESeq2 and SVA batch correction session info for the R environment
-│ ├── README_DESEQ2_SVA_METHOD.md
-│ └── README.md
+│   ├── 📁 REML_pipeline/                 # Random-Effects Meta-Analysis (REML model)
+│   │   ├── R Code REML METHOD FOR META-ANALYSIS
+│   │   ├── REML PIPELINE environment session info for R
+│   │   ├── README_REML_Info.md
+│   │   └── README.md
+│   │
+│   └── 📁 DESeq2_SVA_pipeline/           # DESeq2 + SVA differential expression analysis
+│       ├── R Code RNA-seq Batch Correction (DESeq2 + VST + SVA)
+│       ├── DESeq2 and SVA batch correction session info for the R environment
+│       ├── README_DESEQ2_SVA_METHOD.md
+│       └── README.md
 │
-├── LICENSE # Usage license (CC-BY or MIT)
-├── README.md # Main documentation (this file)
-└── .github/workflows/ # GitHub Actions (CodeQL and CI setup)
-└── codeql.yml
+├── LICENSE
+├── README.md
+└── .github/workflows/
+    └── codeql.yml
+
 
 
 ## Citation
