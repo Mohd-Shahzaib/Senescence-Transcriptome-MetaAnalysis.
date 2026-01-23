@@ -102,6 +102,125 @@ write.csv(counts(dds, normalized = TRUE), "normalized_counts_deseq2.csv")
 write.csv(assay(vsd),                     "vst_matrix_before_batch.csv")
 write.csv(vsd_rm,                         "vst_matrix_after_batch.csv")
 
+
+# ============================================================
+# quantitative batch-correction metrics
+# Compares VST before vs after SVA visualization correction
+# Uses existing objects: vsd, vsd_rm, meta
+# Writes: global metrics + condition-specific silhouette + kNN batch mixing
+# ============================================================
+
+suppressPackageStartupMessages({
+  library(cluster)  # silhouette
+})
+
+# --- Safe output path: uses op() if you defined OUTDIR/op earlier
+.outpath <- function(fname){
+  if (exists("op", mode = "function")) return(op(fname))
+  fname
+}
+
+batch_metrics <- function(mat, meta, pcs_use = 10, k_nn = 10){
+
+  # PCA in sample space
+  pca <- prcomp(t(mat), center = TRUE, scale. = FALSE)
+  pcs <- min(pcs_use, ncol(pca$x))
+  X <- pca$x[, 1:pcs, drop = FALSE]
+
+  # Distance matrix in PC space
+  D <- as.matrix(dist(X))
+
+  # ---------------------------
+  # Silhouette by Condition
+  # ---------------------------
+  cond_int <- as.integer(meta$Condition)
+  sil <- cluster::silhouette(cond_int, dist(X))
+
+  sil_summary <- aggregate(
+    sil[, "sil_width"],
+    by = list(Condition = meta$Condition),
+    FUN = mean
+  )
+  colnames(sil_summary)[2] <- "mean_sil"
+
+  sil_summary <- rbind(
+    sil_summary,
+    data.frame(Condition = "ALL", mean_sil = mean(sil[, "sil_width"]))
+  )
+
+  # ---------------------------
+  # Within vs Between condition distances
+  # ---------------------------
+  cond <- meta$Condition
+  within_vals  <- D[outer(cond, cond, "==") & upper.tri(D)]
+  between_vals <- D[outer(cond, cond, "!=") & upper.tri(D)]
+
+  within_mean  <- mean(within_vals)
+  between_mean <- mean(between_vals)
+  ratio_within_between <- within_mean / between_mean
+
+  # ---------------------------
+  # kNN batch mixing within each Condition:
+  # fraction of neighbors from the same Batch (lower = better mixing)
+  # ---------------------------
+  knn_same_batch_for_idx <- function(idx){
+    if (length(idx) < 3) return(NA_real_)
+    Xs <- X[idx, , drop = FALSE]
+    Ds <- as.matrix(dist(Xs))
+    diag(Ds) <- Inf
+    b <- meta$Batch[idx]
+
+    mean(sapply(seq_along(idx), function(i){
+      k <- min(k_nn, nrow(Ds) - 1)
+      nn <- order(Ds[i, ])[1:k]
+      mean(b[nn] == b[i])
+    }))
+  }
+
+  mix_df <- data.frame(
+    Condition = levels(cond),
+    knn_same_batch = sapply(levels(cond), function(cc){
+      knn_same_batch_for_idx(which(cond == cc))
+    }),
+    row.names = NULL
+  )
+
+  list(
+    sil_summary = sil_summary,
+    within_mean = within_mean,
+    between_mean = between_mean,
+    ratio_within_between = ratio_within_between,
+    mix_df = mix_df
+  )
+}
+
+# -------------------------------
+# Compute metrics BEFORE and AFTER
+# -------------------------------
+metrics_before <- batch_metrics(assay(vsd), meta)
+metrics_after  <- batch_metrics(vsd_rm, meta)
+
+
+batch_summary <- data.frame(
+  stage = c("before", "after"),
+  mean_sil_ALL = c(
+    metrics_before$sil_summary$mean_sil[metrics_before$sil_summary$Condition == "ALL"],
+    metrics_after$sil_summary$mean_sil[metrics_after$sil_summary$Condition == "ALL"]
+  ),
+  within_mean = c(metrics_before$within_mean, metrics_after$within_mean),
+  between_mean = c(metrics_before$between_mean, metrics_after$between_mean),
+  ratio_within_between = c(metrics_before$ratio_within_between, metrics_after$ratio_within_between),
+  row.names = NULL
+)
+
+write.csv(batch_summary, _outpath("batch_metrics_summary.csv"), row.names = FALSE)
+write.csv(metrics_before$sil_summary, _outpath("batch_silhouette_before.csv"), row.names = FALSE)
+write.csv(metrics_after$sil_summary,  _outpath("batch_silhouette_after.csv"),  row.names = FALSE)
+write.csv(metrics_before$mix_df, _outpath("batch_knn_batchmix_before.csv"), row.names = FALSE)
+write.csv(metrics_after$mix_df,  _outpath("batch_knn_batchmix_after.csv"),  row.names = FALSE)
+##############################################################################################################################
+
+
 # -------------------------------
 # 4) Differential results with LFC shrinkage
 # -------------------------------
