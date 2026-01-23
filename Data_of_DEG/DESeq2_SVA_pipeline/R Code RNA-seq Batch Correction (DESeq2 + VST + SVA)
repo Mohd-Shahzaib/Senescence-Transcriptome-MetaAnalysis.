@@ -23,7 +23,8 @@ suppressPackageStartupMessages({
   library(ggvenn)
   library(stringr)
   library(apeglm)  
-  library(ashr)    
+  library(ashr)  
+ library(cluster)  # silhouette
 })
 
 set.seed(20250825)
@@ -68,20 +69,47 @@ vsd <- vst(dds, blind = TRUE)
 # -------------------------------
 # 3) PCA before and after SVA-based removal (visualization only)
 # -------------------------------
+# -------------------------------
+# PCA plotting function
+# -------------------------------
 pca_plot <- function(mat, meta, title){
-  pca <- prcomp(t(mat), center = TRUE)
+  
+  # PCA on samples
+  pca <- prcomp(t(mat), center = TRUE, scale. = FALSE)
   var_expl <- 100 * (pca$sdev^2 / sum(pca$sdev^2))
-  df <- data.frame(pca$x[,1:2], meta)
+  
+  df <- data.frame(pca$x[, 1:2], meta)
+  
+  # Explicit safety: remove NA / Inf
+  df <- df %>% dplyr::filter(is.finite(PC1), is.finite(PC2))
+  
+  # Batch-aware shapes
+  n_batch <- nlevels(meta$Batch)
+  shape_vals <- c(16,17,15,3,7,8,0,1,2,4,5,6,9,10,11,12,13,14)
+  
+  if (n_batch > length(shape_vals)) {
+    stop("Too many batches for PCA shape palette.")
+  }
+  
   ggplot(df, aes(PC1, PC2, color = Condition, shape = Batch)) +
     geom_point(size = 3, alpha = 0.9) +
-    labs(title = title,
-         x = paste0("PC1 (", round(var_expl[1], 1), "%)"),
-         y = paste0("PC2 (", round(var_expl[2], 1), "%)")) +
-    theme_bw(base_size = 14)
+    scale_shape_manual(values = shape_vals[1:n_batch]) +
+    labs(
+      title = title,
+      x = paste0("PC1 (", round(var_expl[1], 1), "%)"),
+      y = paste0("PC2 (", round(var_expl[2], 1), "%)")
+    ) +
+    theme_bw(base_size = 14) +
+    theme(
+      plot.title = element_text(hjust = 0.5, face = "bold"),
+      legend.title = element_text(face = "bold")
+    )
 }
 
-plt_pca_before <- pca_plot(assay(vsd), meta, "PCA before batch correction")
-ggsave("pca_before_batch.png", plt_pca_before, width = 7, height = 6, dpi = 300)
+plt_pca_before <- pca_plot( assay(vsd), meta, "PCA before batch correction")
+
+ggsave( "pca_before_batch.png", plt_pca_before, width = 7, height = 6, dpi = 300 )
+
 
 mod  <- model.matrix(~ Condition + Batch, data = meta)
 mod0 <- model.matrix(~ 1, data = meta)
@@ -94,8 +122,9 @@ vsd_rm <- removeBatchEffect(assay(vsd),
                             covariates = sva_res$sv,
                             design = model.matrix(~ Condition, data = meta))
 
-plt_pca_after <- pca_plot(vsd_rm, meta, "PCA after batch correction (SVA for visualization)")
-ggsave("pca_after_batch.png", plt_pca_after, width = 7, height = 6, dpi = 300)
+plt_pca_after <- pca_plot(vsd_rm, meta,"PCA after batch correction (SVA visualization)")
+ 
+ggsave( "pca_after_batch.png", plt_pca_after, width = 7,  height = 6, dpi = 300 )
 
 # Save normalized matrices for review
 write.csv(counts(dds, normalized = TRUE), "normalized_counts_deseq2.csv")
@@ -110,55 +139,45 @@ write.csv(vsd_rm,                         "vst_matrix_after_batch.csv")
 # Writes: global metrics + condition-specific silhouette + kNN batch mixing
 # ============================================================
 
-suppressPackageStartupMessages({
-  library(cluster)  # silhouette
-})
-
-# --- Safe output path: uses op() if you defined OUTDIR/op earlier
-.outpath <- function(fname){
-  if (exists("op", mode = "function")) return(op(fname))
-  fname
-}
-
 batch_metrics <- function(mat, meta, pcs_use = 10, k_nn = 10){
-
+  
   # PCA in sample space
   pca <- prcomp(t(mat), center = TRUE, scale. = FALSE)
   pcs <- min(pcs_use, ncol(pca$x))
   X <- pca$x[, 1:pcs, drop = FALSE]
-
+  
   # Distance matrix in PC space
   D <- as.matrix(dist(X))
-
+  
   # ---------------------------
   # Silhouette by Condition
   # ---------------------------
   cond_int <- as.integer(meta$Condition)
   sil <- cluster::silhouette(cond_int, dist(X))
-
+  
   sil_summary <- aggregate(
     sil[, "sil_width"],
     by = list(Condition = meta$Condition),
     FUN = mean
   )
   colnames(sil_summary)[2] <- "mean_sil"
-
+  
   sil_summary <- rbind(
     sil_summary,
     data.frame(Condition = "ALL", mean_sil = mean(sil[, "sil_width"]))
   )
-
+  
   # ---------------------------
   # Within vs Between condition distances
   # ---------------------------
   cond <- meta$Condition
   within_vals  <- D[outer(cond, cond, "==") & upper.tri(D)]
   between_vals <- D[outer(cond, cond, "!=") & upper.tri(D)]
-
+  
   within_mean  <- mean(within_vals)
   between_mean <- mean(between_vals)
   ratio_within_between <- within_mean / between_mean
-
+  
   # ---------------------------
   # kNN batch mixing within each Condition:
   # fraction of neighbors from the same Batch (lower = better mixing)
@@ -169,14 +188,14 @@ batch_metrics <- function(mat, meta, pcs_use = 10, k_nn = 10){
     Ds <- as.matrix(dist(Xs))
     diag(Ds) <- Inf
     b <- meta$Batch[idx]
-
+    
     mean(sapply(seq_along(idx), function(i){
       k <- min(k_nn, nrow(Ds) - 1)
       nn <- order(Ds[i, ])[1:k]
       mean(b[nn] == b[i])
     }))
   }
-
+  
   mix_df <- data.frame(
     Condition = levels(cond),
     knn_same_batch = sapply(levels(cond), function(cc){
@@ -184,7 +203,7 @@ batch_metrics <- function(mat, meta, pcs_use = 10, k_nn = 10){
     }),
     row.names = NULL
   )
-
+  
   list(
     sil_summary = sil_summary,
     within_mean = within_mean,
@@ -213,13 +232,13 @@ batch_summary <- data.frame(
   row.names = NULL
 )
 
-write.csv(batch_summary, _outpath("batch_metrics_summary.csv"), row.names = FALSE)
-write.csv(metrics_before$sil_summary, _outpath("batch_silhouette_before.csv"), row.names = FALSE)
-write.csv(metrics_after$sil_summary,  _outpath("batch_silhouette_after.csv"),  row.names = FALSE)
-write.csv(metrics_before$mix_df, _outpath("batch_knn_batchmix_before.csv"), row.names = FALSE)
-write.csv(metrics_after$mix_df,  _outpath("batch_knn_batchmix_after.csv"),  row.names = FALSE)
-##############################################################################################################################
+write.csv(batch_summary,("batch_metrics_summary.csv"), row.names = FALSE)
+write.csv(metrics_before$sil_summary,("batch_silhouette_before.csv"), row.names = FALSE)
+write.csv(metrics_after$sil_summary, ("batch_silhouette_after.csv"),  row.names = FALSE)
+write.csv(metrics_before$mix_df, ("batch_knn_batchmix_before.csv"), row.names = FALSE)
+write.csv(metrics_after$mix_df,  ("batch_knn_batchmix_after.csv"),  row.names = FALSE)
 
+##############################################################################################################################
 
 # -------------------------------
 # 4) Differential results with LFC shrinkage
