@@ -64,17 +64,29 @@ Robust biological conclusions require orthogonal validation through independent 
 
 ## Related research programme
 
-This repository is part of a broader computational research programme integrating aging biology, cellular senescence, mitochondrial regulation, transcriptomics, proteomics, and network biology.
+This repository is part of a broader interdisciplinary research programme integrating aging biology, cellular senescence, mitochondrial regulation, transcriptomics, proteomics, network biology, structural bioinformatics, and experimentally grounded stem-cell models.
 
-Selected related publications:
+### Systems biology, transcriptomics, and multi-omics
 
 - **Shahzaib M. et al.** *The interactome era: Integrating RNA-seq, proteomics, and network biology to decode cellular senescence.* **Ageing Research Reviews** (2025).
+
 - **Shahzaib M. et al.** *A conserved regulatory architecture stabilizes cellular senescence across distinct triggers in human fibroblasts.* **GeroScience** (2026).
+
+- **Shahzaib M. et al.** *Integrative Meta-Analysis of Transcriptomic Networks Reveals Core Signatures and Master Regulators of Cellular Senescence.* Computational workflow and research project associated with this repository.
+
+### Mitochondrial peptides and structural bioinformatics
+
 - **Shahzaib M. et al.** *Humanin as an evolutionarily tuned mitochondrial peptide: Insights from mammalian oxidative stress diversity.* **Free Radical Biology and Medicine** (2026).
+
 - **Shahzaib M. et al.** *Network Topology and Interactomic Analysis Reveal the Regulatory Framework of the Humanin Protein Family (MTRNR2Lx Class).* **Biomolecules** (2026).
 
-Full publication record: [Google Scholar](https://scholar.google.com/citations?user=DKht8zEAAAAJ&hl=en)
+### Experimental senescence and mitochondrial phenotyping
 
+- **Samiminemati A. et al.** *Mesenchymal Stromal Cell Isolation and Induction of Acute and Replicative Senescence.* In: **Stem Cells and Aging: Methods and Protocols** (2024), pp. 203–215.
+
+- **Samiminemati A. et al.** *Methods to Detect and Compare Cellular and Mitochondrial Changes in Senescent and Healthy Mesenchymal Stem Cells.* In: **Stem Cells and Aging: Methods and Protocols** (2024), pp. 95–124.
+
+Full publication record: [Google Scholar](https://scholar.google.com/citations?user=DKht8zEAAAAJ&hl=en)
 ---
 
 ## Reproducibility
