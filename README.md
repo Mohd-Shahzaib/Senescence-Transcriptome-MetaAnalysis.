@@ -25,11 +25,14 @@ This repository provides transparent workflows to distinguish robust cross-study
 
 ## Implemented workflows
 
-| Workflow | Core methods | Scientific value |
-|---|---|---|
-| **Cross-study meta-analysis** | Random-effects model (REML) | Synthesizes gene-level evidence across datasets while explicitly modelling between-study heterogeneity |
-| **Batch-aware RNA-seq analysis** | DESeq2, variance-stabilizing transformation, surrogate-variable analysis (SVA) | Detects condition-associated expression changes while reducing unwanted technical variation |
-| **Reproducibility capture** | R session and package-environment records | Enables inspection and reconstruction of the original computational environment |
+| Research layer | Workflow | Core methods | Scientific purpose |
+|---|---|---|---|
+| **Transcriptomics** | Cross-study meta-analysis | Random-effects model (REML) | Synthesizes gene-level evidence across independent datasets while explicitly modelling between-study heterogeneity |
+| **Transcriptomics** | Batch-aware RNA-seq analysis | DESeq2, variance-stabilizing transformation, surrogate-variable analysis (SVA) | Identifies condition-associated transcriptional programmes while reducing unwanted technical variation |
+| **Mitochondrial peptide biology** | Comparative Humanin physicochemical profiling | R, `Peptides`, sequence-derived descriptors, hierarchical clustering, reference-centred heatmap | Quantifies cross-species variation in peptide physicochemical features linked to stability, charge, hydrophobicity, and oxidative-stress susceptibility |
+| **Structural bioinformatics** | Humanin–receptor protein–peptide docking | HDOCKlite, Python batch automation, top-ranked complex generation | Generates comparative structural hypotheses for Humanin interactions with selected candidate receptors |
+| **Structural bioinformatics** | Docked-complex interface energetics | PRODIGY, Python parsing, predicted binding affinity, \(K_d\), interface contacts | Extracts comparative predicted interface-affinity and contact metrics from docking-derived protein–peptide complexes |
+| **Reproducibility** | Environment and analysis capture | R session information, scripted workflows | Documents computational dependencies and supports transparent reruns |
 
 ---
 
