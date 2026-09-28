@@ -102,7 +102,7 @@ If you use or adapt this repository, please cite:
 > Shahzaib M. (2025). *Integrative Meta-Analysis of Transcriptomic Networks Reveals Core Signatures and Master Regulators of Cellular Senescence.*
 
 **Repository:**  
-[https://github.com/Mohd-Shahzaib/Senescence-Transcriptome-MetaAnalysis.](https://github.com/Mohd-Shahzaib/Senescence-Transcriptome-MetaAnalysis)
+[https://github.com/Mohd-Shahzaib/Senescence-Transcriptome-MetaAnalysis.](https://github.com/Mohd-Shahzaib/Senescence-Transcriptome-MetaAnalysis.)
 
 ---
 
