@@ -4,7 +4,7 @@
 
 [![Language: R](https://img.shields.io/badge/Language-R-276DC3?logo=r&logoColor=white)](https://www.r-project.org/)
 [![Focus: Cellular Senescence](https://img.shields.io/badge/Focus-Cellular%20Senescence-B03A2E)](#scientific-rationale)
-[![Methods: REML | DESeq2 | SVA](https://img.shields.io/badge/Methods-REML%20%7C%20DESeq2%20%7C%20SVA-1F6F8B)](#implemented-workflows)
+[![Methods: REML | DESeq2 | SVA | proteomics](https://img.shields.io/badge/Methods-REML%20%7C%20DESeq2%20%7C%20SVA-1F6F8B)](#implemented-workflows)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2EA44F)](LICENSE)
 
 > **A reproducible R resource for identifying robust senescence-associated transcriptional programmes across heterogeneous datasets and prioritizing candidates for pathway, network, proteomic, and multi-omics validation.**
